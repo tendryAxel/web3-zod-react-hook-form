@@ -2,14 +2,20 @@
 
 import { useEffect } from "react";
 import { useForm } from "react-hook-form"
+import { z } from "zod"
 import "./style.scss"
+import { zodResolver } from "@hookform/resolvers/zod";
 
-interface FormData {
-  name?: string;
-}
+const schema = z.object({
+  name: z.string().min(2)
+})
+
+type FormData = z.infer<typeof schema>
 
 const MyForm = () => {
-  const form = useForm<FormData>();
+  const form = useForm<FormData>({
+    resolver: zodResolver(schema)
+  });
 
   const onSubmit = (data: FormData) => {
     console.log(data);
@@ -24,16 +30,7 @@ const MyForm = () => {
         <input
           type="text"
           placeholder="name"
-          {...form.register("name", {
-            required: {
-              value: true,
-              message: "It's required",
-            } ,
-            maxLength: {
-              value: 20,
-              message: "The max length is exeded"
-            }
-          })}
+          {...form.register("name")}
         />
         {form.formState.errors.name && <span>{form.formState.errors.name.message}</span>}
         <button type="submit">Submit</button>
