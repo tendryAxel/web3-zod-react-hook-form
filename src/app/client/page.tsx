@@ -1,16 +1,38 @@
 "use client"
 
 import { useEffect } from "react";
-import { useForm } from "react-hook-form"
+import { FieldError, FieldErrors, UseFormRegister, useForm } from "react-hook-form"
 import { z } from "zod"
 import "./style.scss"
 import { zodResolver } from "@hookform/resolvers/zod";
 
 const schema = z.object({
-  name: z.string().min(2)
+  name: z.string().min(0),
+  email: z.string().email(),
+  phone: z.string().length(10),
 })
 
 type FormData = z.infer<typeof schema>
+
+const Input = ({
+  register,
+  errors,
+  placeholder,
+  registerName,
+} : {
+  register: UseFormRegister<FormData>,
+  errors: FieldError | undefined,
+  placeholder: string,
+  registerName: "name" | "email" | "phone",
+}) => {
+  return <>
+  <input
+          type="tel"
+          placeholder={placeholder}
+          {...register(registerName)}
+        />
+        {errors && <span>{errors.message}</span>}</>
+}
 
 const MyForm = () => {
   const form = useForm<FormData>({
@@ -22,17 +44,25 @@ const MyForm = () => {
   }
   
   useEffect(()=>{
-    console.log(form.formState.errors.name);
   })
 
   return <div>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <input
-          type="text"
-          placeholder="name"
-          {...form.register("name")}
-        />
-        {form.formState.errors.name && <span>{form.formState.errors.name.message}</span>}
+        <Input
+          register={form.register}
+          errors={form.formState.errors.name}
+          registerName="name"
+          placeholder="Name"/>
+        <Input
+          register={form.register}
+          errors={form.formState.errors.email}
+          registerName="email"
+          placeholder="Email"/>
+        <Input
+          register={form.register}
+          errors={form.formState.errors.phone}
+          registerName="phone"
+          placeholder="Tel: 032 12 345 67"/>
         <button type="submit">Submit</button>
       </form>
     </div>
